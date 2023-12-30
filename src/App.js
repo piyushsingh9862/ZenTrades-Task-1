@@ -1,25 +1,35 @@
-import logo from './logo.svg';
-import './App.css';
 
-function App() {
+import React, { useState, useEffect } from 'react';
+import ProductList from './components/ProductList';
+
+const App = () => {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    // Fetching data from the given API
+    fetch('https://s3.amazonaws.com/open-to-cors/assignment.json')
+      .then((response) => response.json())
+      .then((jsonData) => {
+        
+        const productsArray = Object.values(jsonData.products || {});
+        
+        // Ensuring it an array before performing a sort operation
+        const dataArray = Array.isArray(productsArray) ? productsArray : [];
+        
+        // Sorting it based on the decreasing popularity
+        const sortedData = dataArray.sort((a, b) => b.popularity - a.popularity);
+        setData(sortedData);
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <ProductList data={data} />
     </div>
   );
-}
+};
 
 export default App;
